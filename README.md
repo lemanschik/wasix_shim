@@ -9,7 +9,7 @@ npm install @bjorn3/browser_wasi_shim --save
 ```
 
 ```javascript
-import { WASI, File, OpenFile, PreopenDirectory } from "@bjorn3/browser_wasi_shim";
+import { WASI, File, OpenFile, PreopenDirectory } from "./wasix.js";
 
 let args = ["bin", "arg1", "arg2"];
 let env = ["FOO=bar"];
