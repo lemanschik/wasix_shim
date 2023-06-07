@@ -4,10 +4,6 @@ Implementation status: A subset of wasi_snapshot_preview1 is implemented. The re
 
 ## Usage
 
-```
-npm install @bjorn3/browser_wasi_shim --save
-```
-
 ```javascript
 import { WASI, File, OpenFile, PreopenDirectory } from "./wasix.js";
 
