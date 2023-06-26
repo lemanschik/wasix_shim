@@ -274,7 +274,7 @@ export default class WASI {
         fd: number,
         iovs_ptr: number,
         iovs_len: number,
-        offset: number,
+        offset: bigint,
         nwritten_ptr: number
       ): number {
         let buffer = new DataView(self.inst.exports.memory.buffer);
@@ -330,15 +330,30 @@ export default class WASI {
             if (dirent == null) {
               break;
             }
-            let offset = dirent.length();
 
-            if (buf_len - bufused < offset) {
+            if (buf_len - bufused < dirent.head_length()) {
+              bufused = buf_len;
               break;
             }
 
-            dirent.write_bytes(buffer, buffer8, buf);
-            buf += offset;
-            bufused += offset;
+            let head_bytes = new ArrayBuffer(dirent.head_length());
+            dirent.write_head_bytes(new DataView(head_bytes), 0);
+            buffer8.set(
+              (new Uint8Array(head_bytes)).slice(0, Math.min(head_bytes.byteLength, buf_len - bufused)),
+              buf,
+            );
+            buf += dirent.head_length();
+            bufused += dirent.head_length();
+
+            if (buf_len - bufused < dirent.name_length()) {
+              bufused = buf_len;
+              break;
+            }
+
+            dirent.write_name_bytes(buffer8, buf, buf_len - bufused);
+            buf += dirent.name_length();
+            bufused += dirent.name_length();
+
             cookie = dirent.d_next;
           }
 
@@ -363,7 +378,7 @@ export default class WASI {
       },
       fd_seek(
         fd: number,
-        offset: number,
+        offset: bigint,
         whence: number,
         offset_out_ptr: number
       ): number {
